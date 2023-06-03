@@ -51,7 +51,7 @@ def bad_words_data():
 
 
 @pytest.fixture
-def news_list(News):
+def news_list(news):
     today = datetime.now()
     all_news = [
         News(
