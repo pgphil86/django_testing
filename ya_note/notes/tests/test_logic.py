@@ -71,7 +71,7 @@ class TestNoteCreation(TestCase):
         self.assertRedirects(response, reverse('notes:success'))
         note_count = Note.objects.count()
         self.assertEqual(note_count, 0)
-        
+
     def test_anonymous_user_cant_create_note(self):
         """
         Tests of add note by anonum.

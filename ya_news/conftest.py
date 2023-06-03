@@ -41,7 +41,17 @@ def news_pk(news):
 
 
 @pytest.fixture
-def news_list(news):
+def form_data():
+    return {'text': 'Новый текст комментария'}
+
+
+@pytest.fixture
+def bad_words_data():
+    return {'text': f'Какой-то текст, {BAD_WORDS[0]}, еще текст'}
+
+
+@pytest.fixture
+def news_list(News):
     today = datetime.now()
     all_news = [
         News(
@@ -64,13 +74,3 @@ def comment_list(author, news):
         )
         comment.created = now + timedelta(days=index)
         comment.save()
-
-
-@pytest.fixture
-def form_data():
-    return {'text': 'Новый текст комментария'}
-
-
-@pytest.fixture
-def bad_words_data():
-    return {'text': f'Какой-то текст, {BAD_WORDS[0]}, еще текст'}
