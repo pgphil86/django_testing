@@ -45,10 +45,10 @@ class TestRoutes(TestCase):
         Tests of access homepage and logins pages for anonum.
         """
         urls = (
-            ('notes:home'),
-            ('users:login'),
-            ('users:logout'),
-            ('users:signup'),
+            'notes:home',
+            'users:login',
+            'users:logout',
+            'users:signup',
         )
         for name in urls:
             with self.subTest(name=name):
@@ -65,9 +65,9 @@ class TestRoutes(TestCase):
             (self.author, HTTPStatus.OK),
         )
         urls = (
-            ('notes:detail'),
-            ('notes:edit'),
-            ('notes:delete'),
+            'notes:detail',
+            'notes:edit',
+            'notes:delete',
         )
         for user, status in users_statuses:
             self.client.force_login(user)

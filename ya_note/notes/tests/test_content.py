@@ -36,8 +36,12 @@ class TestContent(TestCase):
             with self.subTest(user=user):
                 self.client.force_login(user)
                 response = self.client.get(reverse('notes:list'))
-                notes = response.context['object_list']
-                self.assertEqual((self.note in notes), expected_notes)
+                self.assertIn('object_list', response.context)
+                object_list = response.context['object_list']
+                if expected_notes:
+                    self.assertIn(self.note, object_list)
+                else:
+                    self.assertNotIn(self.note, object_list)
 
     def test_authorized_client_has_form(self):
         """
@@ -52,6 +56,7 @@ class TestContent(TestCase):
                 self.client.force_login(self.author)
                 url = reverse(name, args=args)
                 response = self.client.get(url)
+                self.assertIn('form', response.context)
                 form = response.context['form']
                 self.assertIn('form', response.context)
                 self.assertIsInstance(form, NoteForm)

@@ -17,7 +17,7 @@ from pytest_django.asserts import assertRedirects
 )
 def test_pages_availability_for_anonymous_user(client, name, args):
     """
-    Tests differents pages for anonum.
+    Tests where anonym work with differents pages.
     """
     url = reverse(name, args=args)
     response = client.get(url)
@@ -51,9 +51,9 @@ def test_author_can_delete_and_create_comment(
     'name',
     ('news:edit', 'news:delete'),
 )
-def redirects_tests(client, name, comment):
+def tests_of_redirects(client, name, comment):
     """
-    Redirects tests of anonum.
+    Redirects tests of anonym.
     """
     login_url = reverse('users:login')
     url = reverse(name, args=(comment.pk,))

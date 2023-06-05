@@ -1,5 +1,5 @@
 import pytest
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from django.conf import settings
 from django.utils import timezone
@@ -52,7 +52,7 @@ def bad_words_data():
 
 @pytest.fixture
 def news_list(news):
-    today = datetime.now()
+    today = timezone.now()
     all_news = [
         News(
             title=f'Новость {index}',
@@ -67,10 +67,8 @@ def news_list(news):
 
 @pytest.fixture
 def comment_list(author, news):
-    now = timezone.now()
-    for index in range(2):
-        comment = Comment.objects.create(
-            news=news, author=author, text=f'Текст комментария {index}'
-        )
-        comment.created = now + timedelta(days=index)
-        comment.save()
+    comment = Comment.objects.bulk_create(
+        Comment(news=news, author=author, text=f'Текст комментария {index}')
+        for index in range(2)
+    )
+    return comment

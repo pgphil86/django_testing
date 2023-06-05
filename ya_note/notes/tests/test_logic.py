@@ -1,7 +1,7 @@
 from http import HTTPStatus
 
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import Client, TestCase
 from django.urls import reverse
 from pytils.translit import slugify
 
@@ -17,8 +17,12 @@ class TestNoteCreation(TestCase):
     """
     @classmethod
     def setUpTestData(cls):
-        cls.user = User.objects.create(username='Пользователь')
         cls.author = User.objects.create(username='Автор')
+        cls.author_client = Client()
+        cls.author_client.force_login(cls.author)
+        cls.reader = User.objects.create(username='Читатель')
+        cls.reader_client = Client()
+        cls.reader_client.force_login(cls.reader)
         cls.note = Note.objects.create(
             title='Заголовок',
             text='Текст заметки',
@@ -36,8 +40,7 @@ class TestNoteCreation(TestCase):
         """
         Tests of add note by author.
         """
-        self.client.force_login(self.author)
-        response = self.client.post(self.url, data=self.form_data)
+        response = self.author_client.post(self.url, data=self.form_data)
         self.assertRedirects(response, reverse('notes:success'))
         note_count = Note.objects.count()
         self.assertEqual(note_count, 2)
@@ -52,8 +55,7 @@ class TestNoteCreation(TestCase):
         Tests of edit note by author.
         """
         url = reverse('notes:edit', args=(self.note.slug,))
-        self.client.force_login(self.author)
-        response = self.client.post(url, data=self.form_data)
+        response = self.author_client.post(url, data=self.form_data)
         self.assertRedirects(response, reverse('notes:success'))
         self.note.refresh_from_db()
         new_note = Note.objects.get()
@@ -66,15 +68,14 @@ class TestNoteCreation(TestCase):
         Tests of delete note by author.
         """
         url = reverse('notes:delete', args=(self.note.slug,))
-        self.client.force_login(self.author)
-        response = self.client.post(url)
+        response = self.author_client.post(url)
         self.assertRedirects(response, reverse('notes:success'))
         note_count = Note.objects.count()
         self.assertEqual(note_count, 0)
 
     def test_anonymous_user_cant_create_note(self):
         """
-        Tests of add note by anonum.
+        Tests of add note by anonym.
         """
         self.client.post(self.url, data=self.form_data)
         note_count = Note.objects.count()
@@ -82,11 +83,10 @@ class TestNoteCreation(TestCase):
 
     def test_user_cant_edit_note_of_another_user(self):
         """
-        Tests of edit note by anonum.
+        Tests of edit note by anonym.
         """
         url = reverse('notes:edit', args=(self.note.slug,))
-        self.client.force_login(self.user)
-        response = self.client.post(url, data=self.form_data)
+        response = self.reader_client.post(url, data=self.form_data)
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
         note_from_db = Note.objects.get(id=self.note.id)
         self.assertEqual(self.note.title, note_from_db.title)
@@ -95,11 +95,10 @@ class TestNoteCreation(TestCase):
 
     def test_user_cant_delete_note_of_another_user(self):
         """
-        Tests of delete note by anonum.
+        Tests of delete note by anonym.
         """
         url = reverse('notes:delete', args=(self.note.slug,))
-        self.client.force_login(self.user)
-        response = self.client.post(url)
+        response = self.reader_client.post(url)
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
         note_count = Note.objects.count()
         self.assertEqual(note_count, 1)
@@ -109,8 +108,7 @@ class TestNoteCreation(TestCase):
         Tests of generate slug.
         """
         self.form_data.pop('slug')
-        self.client.force_login(self.author)
-        self.client.post(self.url, data=self.form_data)
+        self.author_client.post(self.url, data=self.form_data)
         note_count = Note.objects.count()
         self.assertEqual(note_count, 2)
         new_note = Note.objects.last()
@@ -122,8 +120,7 @@ class TestNoteCreation(TestCase):
         Tests of unique slug.
         """
         self.form_data['slug'] = self.note.slug
-        self.client.force_login(self.author)
-        response = self.client.post(self.url, data=self.form_data)
+        response = self.author_client.post(self.url, data=self.form_data)
         self.assertFormError(
             response, 'form', 'slug', errors=(self.note.slug + WARNING)
         )
