@@ -49,7 +49,7 @@ def test_author_can_delete_comment(author_client, comment, news_pk):
 @pytest.mark.django_db
 def test_anonymous_user_cant_create_comment(form_data, client, news_pk):
     """
-    Tests when anonum can't create comments.
+    Tests when anonym can't create comments.
     """
     url = reverse('news:detail', args=news_pk)
     client.post(url, data=form_data)
@@ -58,7 +58,7 @@ def test_anonymous_user_cant_create_comment(form_data, client, news_pk):
 
 def test_user_cant_edit_other_comment(admin_client, form_data, comment):
     """
-    Tests when anonum can't edit comments.
+    Tests when anonym can't edit comments.
     """
     url = reverse('news:edit', args=(comment.id,))
     response = admin_client.post(url, data=form_data)
@@ -69,7 +69,7 @@ def test_user_cant_edit_other_comment(admin_client, form_data, comment):
 
 def test_user_cant_delete_other_comment(admin_client, comment):
     """
-    Tests when anonum can't delete comments.
+    Tests when anonym can't delete comments.
     """
     url = reverse('news:delete', args=(comment.id,))
     response = admin_client.delete(url)
